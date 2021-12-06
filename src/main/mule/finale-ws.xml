@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a2d16cb9-dde1-4dea-883e-789b86a34626" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="0742a036-f7ef-40c4-8298-fb4662527362" >
+		<db:my-sql-connection host="${onlinedb.host}" port="${onlinedb.port}" user="${onlinedb.username}" password="${onlinedb.password}" database="${onlinedb.database}" />
+	</db:config>
+	<flow name="getemp" doc:id="d5ad324b-effa-42f9-81b9-4f80b3acc957" >
+		<http:listener doc:name="Listener" doc:id="3dfbc11f-68ff-4392-8dd5-e566736d7283" config-ref="HTTP_Listener_config" path="/emp"/>
+		<db:select doc:name="Select" doc:id="11d322f9-915c-401c-8b3f-c9321725e077" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from employee]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="e1bdd6b5-4faa-4c49-8ca9-94ea51f4a830" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="179dfdcb-25d4-4ee3-9953-942f69eeaac4" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f4c446ac-3cd0-4559-a7c7-e076dc356b8d" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="40828bd7-8636-46ba-aab3-496a737687f4" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message" : "Error"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

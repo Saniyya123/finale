@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="8b3a5923-1906-4915-8a7d-6eb60eff25a2" file="config.yaml" />
+	<configuration doc:name="Configuration" doc:id="6133300c-ff46-47e0-a1ff-e1a27ee76bf4" defaultErrorHandler-ref="globalError_Handler" />
+	<error-handler name="globalError_Handler" doc:id="8e8d5bf6-81c1-407d-aa4a-4c29095b4d5a" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="8615e346-71cd-42cc-82f7-97bb62721031" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="d54886d1-f62f-4848-aacc-3efe0a71d5be" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message" : "Can handle any message"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-continue>
+	</error-handler>
+</mule>
